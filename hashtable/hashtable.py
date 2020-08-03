@@ -22,6 +22,8 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
+        self.capacity = capacity
+        self.table = [None] * capacity
 
 
     def get_num_slots(self):
@@ -34,6 +36,7 @@ class HashTable:
 
         Implement this.
         """
+        return self.capacity
         # Your code here
 
 
@@ -43,6 +46,7 @@ class HashTable:
 
         Implement this.
         """
+        return len(self.table) / self.capacity
         # Your code here
 
 
@@ -62,7 +66,11 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
-        # Your code here
+        hash = 5381
+
+        for each in key:
+            hash = (hash * 33) + ord(each)
+        return hash
 
 
     def hash_index(self, key):
@@ -81,7 +89,30 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
+        # Your code here -- should handle collisions
+        newEntry = HashTableEntry(key, value)
+        hash_key = self.hash_index(key)
+        if self.table[hash_key] is None:
+            self.table[hash_key] = newEntry
+        else:
+            current_node = self.table[hash_key]
+            previous_node = None
+            while current_node.key != key and current_node.next is not None:
+                previous_node = current_node
+                current_node = current_node.next
+
+            #IF current node's key is target key and there's a node behind it:
+            if current_node.key == key and previous_node is not None:
+                previous_node.next = newEntry
+                newEntry.next = current_node.next
+            #IF current node's key is target key and there's no node behind it:
+            elif current_node.key == key and previous_node is None:
+                self.table[hash_key] = newEntry
+            #IF current node's key is not target key and there's no node behind it:
+            elif current_node.key != key and current_node.next is None:
+                current_node.next = newEntry
+
+
 
 
     def delete(self, key):
@@ -93,6 +124,29 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        hash_key = self.hash_index(key)
+        if self.table[hash_key] is not None:
+            current_node = self.table[hash_key]
+            previous_key = None
+            #Loop through linked list, looking for key and breaking loop
+            #if key is found or reached end of list.
+            while current_node.key != key and current_node.next is not None:
+                previous_key = current_node
+                current_node = current_node.next
+            #IF current node's key is target key and there's a node behind it, and something in front:
+            if current_node.key == key and previous_key is not None and current_node.next is not None:
+                previous_key.next = current_node.next
+            #IF current node's key is target key and there's no node behind it:
+            elif current_node.key == key and previous_key is None and current_node.next is None:
+                self.table[hash_key] = None
+            #IF current node's key is target key and there's no node behind it but there is one in front:
+            elif current_node.key == key and previous_key is None and current_node.next is not None:
+                self.table[hash_key] = current_node.next
+            #IF current node's key is not target key and there's no node behind it:
+            elif current_node.key != key and current_node.next is None:
+                return "Warning - Key not found."
+        else:
+            return "Warning - Key not found."
 
 
     def get(self, key):
@@ -104,6 +158,19 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        hash_key = self.hash_index(key)
+        if self.table[hash_key] is not None:
+            current_node = self.table[hash_key]
+            while current_node.key != key and current_node.next is not None:
+                current_node = current_node.next
+
+            if current_node.key == key:
+                return current_node.value
+            elif current_node.next is None:
+                return None
+
+        else:
+            return None
 
 
     def resize(self, new_capacity):
