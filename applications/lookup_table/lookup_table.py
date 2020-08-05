@@ -1,4 +1,7 @@
 # Your code here
+import math
+import random
+from hashtable import HashTable, HashTableEntry
 
 
 def slowfun_too_slow(x, y):
@@ -8,6 +11,9 @@ def slowfun_too_slow(x, y):
     v %= 982451653
 
     return v
+
+def createLookUpTable():
+    
 
 def slowfun(x, y):
     """
